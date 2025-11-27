@@ -1,0 +1,16 @@
+# ASP.NET Core
+ReactAppREST.Server/bin/
+ReactAppREST.Server/obj/
+ReactAppREST.Server/wwwroot/
+ReactAppREST.Server/appsettings.Development.json
+
+# Vite / React
+reactapprest.client/node_modules/
+reactapprest.client/dist/
+reactapprest.client/.env
+reactapprest.client/*.local
+
+# System
+*.DS_Store
+*.vs/
+.vscode/

@@ -1,0 +1,1 @@
+C:\FullSD\back_end\AspNetCore\ReactAppREST\reactapprest.client\obj\Debug\reactapprest.client.esproj.CoreCompileInputs.cache

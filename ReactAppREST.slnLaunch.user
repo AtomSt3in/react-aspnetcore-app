@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Nuevo perfil",
+    "Projects": [
+      {
+        "Path": "reactapprest.client\\reactapprest.client.esproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ReactAppREST.Server\\ReactAppREST.Server.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
