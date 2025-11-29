@@ -32,7 +32,7 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
-                "https://react-app-rest.vercel.app",     //front en Vercel
+                "https://react-aspnetcore-app.vercel.app/",     //front en Vercel
                 "https://react-aspnetcore-app.onrender.com"
             )
             .AllowAnyHeader()
