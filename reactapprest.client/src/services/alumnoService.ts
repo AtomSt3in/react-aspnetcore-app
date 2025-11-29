@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { appsettings } from "../settings/appsettings";
 import type { IAlumno } from "../interfaces/IAlumno";
 

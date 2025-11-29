@@ -4,14 +4,15 @@ using ReactAppREST.Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Controllers
 builder.Services.AddControllers();
 
+// DB
 builder.Services.AddDbContext<SemestreFrontContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConexionSQL"))
 );
 
-// Configuración de autenticación por cookies
+// Autenticación (cookies)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -22,19 +23,25 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite = SameSiteMode.None;
     });
 
-// SOLO PARA DESARROLLO - Configuración CORS
+// CORS (local + Vercel)
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("NuevaPolitica", app =>
+    options.AddPolicy("NuevaPolitica", policy =>
     {
-        app.SetIsOriginAllowed(origin => true)
-           .AllowAnyHeader()
-           .AllowAnyMethod()
-           .AllowCredentials();
+        policy
+            .WithOrigins(
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "https://react-app-rest.vercel.app",     //front en Vercel
+                "https://react-aspnetcore-app.onrender.com"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -43,7 +50,7 @@ var app = builder.Build();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
+// Dev tools
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
