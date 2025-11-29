@@ -32,7 +32,7 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
-                "https://react-aspnetcore-app.vercel.app/",     //front en Vercel
+                "https://react-aspnetcore-app.vercel.app",     //front en Vercel
                 "https://react-aspnetcore-app.onrender.com"
             )
             .AllowAnyHeader()
@@ -56,6 +56,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.Use((context, next) =>
+{
+    context.Response.Headers.Append("Access-Control-Allow-Credentials", "true");
+    return next();
+});
 
 app.UseCors("NuevaPolitica");
 
