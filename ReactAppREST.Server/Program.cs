@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Infrastructure;
 using ReactAppREST.Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,11 +33,11 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
-                "https://react-aspnetcore-app.vercel.app",     //front en Vercel
-                "https://react-aspnetcore-app.onrender.com"
+                "https://react-aspnetcore-app.vercel.app"     //front en Vercel
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
+
             .AllowCredentials();
     });
 });
@@ -44,6 +45,9 @@ builder.Services.AddCors(options =>
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Licencia de QuestPDF
+QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 

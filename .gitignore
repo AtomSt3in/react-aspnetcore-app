@@ -3,6 +3,7 @@ ReactAppREST.Server/bin/
 ReactAppREST.Server/obj/
 ReactAppREST.Server/wwwroot/
 ReactAppREST.Server/appsettings.Development.json
+ReactAppREST.Server/appsettings.Production.json
 
 # Vite / React
 reactapprest.client/node_modules/

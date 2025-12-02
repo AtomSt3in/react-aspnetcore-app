@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
 using ReactAppREST.Server.Models;
 using System;
 using System.Collections.Generic;
@@ -145,5 +146,29 @@ namespace proyectoFinal2.Server.Controllers
 
             return Ok(new { mensaje = "ok", cantidad = alumnos.Count });
         }
+
+        [HttpGet("Reporte")]
+        public async Task<IActionResult> GenerarReporteAlumnos()
+        {
+            var alumnos = await _context.CaAlumnos
+                .Include(a => a.CaGradN)
+                .Select(a => new ReporteAlumno
+                {
+                    Id = a.CaAlumnNId,
+                    Nombre = a.CaAlumnTNombre,
+                    ApellidoPaterno = a.CaAlumnTApellidoPaterno,
+                    ApellidoMaterno = a.CaAlumnTApellidoMaterno,
+                    Telefono = a.CaAlumnTTelefono,
+                    Grado = a.CaGradN != null ? a.CaGradN.CaGradoTDescripcion : "N/A",
+                    Activo = a.CaAlumnBActivo ?? false
+                })
+                .ToListAsync();
+
+            var documento = new AlumnoReporteDocument(alumnos).Create();
+            var pdf = documento.GeneratePdf();
+
+            return File(pdf, "application/pdf", "Reporte_Alumnos.pdf");
+        }
+
     }
 }

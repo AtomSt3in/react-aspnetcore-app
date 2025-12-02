@@ -4,7 +4,8 @@ import { Container, Row, Col, Table, Button, Card, Badge } from "reactstrap";
 import { useAlumnoList } from "../../hooks/alumnos/useListaAlumnos";
 
 export const AlumnoList: React.FC = () => {
-  const { alumnos, loading, handleEliminar } = useAlumnoList();
+  const { alumnos, loading, handleEliminar, handleGenerarReporte } =
+    useAlumnoList();
 
   const getEstadoBadge = (activo: boolean) => {
     return activo ? (
@@ -53,6 +54,15 @@ export const AlumnoList: React.FC = () => {
                     + Nuevo Alumno
                   </Link>
                 </Col>
+                <Col xs="auto">
+                  <Button
+                    className="btn custom-btn-outline fw-semibold px-4"
+                    onClick={handleGenerarReporte}
+                  >
+                    <i className="fa-solid fa-file-lines me-2"></i>
+                    Generar Reporte
+                  </Button>
+                </Col>
               </Row>
             </div>
 
@@ -100,7 +110,8 @@ export const AlumnoList: React.FC = () => {
                           </td>
                           <td>
                             <Badge className="custom-badge-primary px-3 py-2">
-                              {alumno.gradoDescripcion || `Grado ${alumno.caGradNId}`}
+                              {alumno.gradoDescripcion ||
+                                `Grado ${alumno.caGradNId}`}
                             </Badge>
                           </td>
                           <td>{getEstadoBadge(alumno.caAlumnBActivo)}</td>

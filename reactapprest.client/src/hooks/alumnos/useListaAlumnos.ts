@@ -50,10 +50,28 @@ export const useAlumnoList = () => {
     obtenerAlumnos();
   }, []);
 
+  const handleGenerarReporte = async () => {
+  try {
+    const blob = await alumnoService.generarReporte();
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = "Reporte_Alumnos.pdf";
+    a.click();
+
+    URL.revokeObjectURL(url);
+  } catch {
+    Swal.fire("Error", "No se pudo generar el reporte", "error");
+  }
+};
+
   return {
     alumnos,
     loading,
     obtenerAlumnos,
-    handleEliminar
+    handleEliminar,
+    handleGenerarReporte
   };
 };

@@ -79,4 +79,14 @@ export const alumnoService = {
     if (!response.ok) throw new Error("Error al crear alumnos en lote");
     return response;
   },
+
+  async generarReporte(): Promise<Blob> {
+    const response = await fetch(`${appsettings.apiUrl}Alumnos/Reporte`, {
+      method: "GET",
+    });
+
+    if (!response.ok) throw new Error("No se pudo generar el reporte");
+
+    return await response.blob();
+  },
 };
