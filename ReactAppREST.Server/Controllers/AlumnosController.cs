@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using QuestPDF.Fluent;
 using ReactAppREST.Server.Models;
 using System;
@@ -17,10 +18,12 @@ namespace proyectoFinal2.Server.Controllers
     public class AlumnosController : ControllerBase
     {
         private readonly SemestreFrontContext _context;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
-        public AlumnosController(SemestreFrontContext context)
+        public AlumnosController(SemestreFrontContext context, IWebHostEnvironment hostEnvironment)
         {
             _context = context;
+            _hostEnvironment = hostEnvironment;
         }
 
         //GET: obtener/Alumnos
@@ -164,11 +167,17 @@ namespace proyectoFinal2.Server.Controllers
                 })
                 .ToListAsync();
 
-            var documento = new AlumnoReporteDocument(alumnos).Create();
+            // >>> OPCIONAL: Ruta del logo <<<
+            var rutaLogo = Path.Combine(_hostEnvironment.WebRootPath, "images", "tecDelicias.png");
+
+            // Nuevo formato del documento
+            var documento = new AlumnoReporteDocument(alumnos, rutaLogo).Create();
+
             var pdf = documento.GeneratePdf();
 
             return File(pdf, "application/pdf", "Reporte_Alumnos.pdf");
         }
+
 
     }
 }
