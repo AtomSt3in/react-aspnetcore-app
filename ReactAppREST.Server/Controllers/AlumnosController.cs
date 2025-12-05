@@ -143,7 +143,7 @@ namespace proyectoFinal2.Server.Controllers
             }
 
 
-            await _context.CaAlumnos.AddRangeAsync(alumnos);
+                await _context.CaAlumnos.AddRangeAsync(alumnos);
             await _context.SaveChangesAsync();
 
 

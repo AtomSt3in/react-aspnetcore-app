@@ -1,4 +1,4 @@
-import { useState, type JSX } from "react";
+import { useState, type JSX, useEffect } from "react";
 import { Container, Card, CardBody, Button, Row, Col } from "reactstrap";
 import UploadStep from "./UploadStep";
 import MappingStep from "./MappingStep";
@@ -6,26 +6,34 @@ import PreviewStep from "./PreviewStep";
 import ConfirmStep from "./ConfirmStep";
 import useBulkUpload from "../../hooks/useBulkUpload";
 
-const steps = [
-  "Subir archivo",
-  "Mapear columnas",
-  "Vista previa",
-  "Confirmar y enviar",
-];
+const steps = ["Subir archivo", "Mapear columnas", "Vista previa", "Confirmar y enviar"];
 
 export default function WizardForm(): JSX.Element {
-  const [stepIndex, setStepIndex] = useState(0);
+  const [stepIndex, setStepIndex] = useState<number>(() => {
+    // restore last step if needed
+    const s = sessionStorage.getItem("bulkWizard_step_v3");
+    return s ? Number(s) : 0;
+  });
+
   const {
     fileInfo,
     parsedRows,
+    rawRows,
     mapping,
-    setMapping,
+    suggestedMapping,
     errors,
-    setFileInfo,
+    errorsByCell,
+    setMapping,
     parseFile,
+    autoMapColumns,
+    updateCell,
     uploadBulk,
     reset,
   } = useBulkUpload();
+
+  useEffect(() => {
+    sessionStorage.setItem("bulkWizard_step_v3", String(stepIndex));
+  }, [stepIndex]);
 
   const next = () => setStepIndex((i) => Math.min(i + 1, steps.length - 1));
   const prev = () => setStepIndex((i) => Math.max(i - 1, 0));
@@ -43,21 +51,27 @@ export default function WizardForm(): JSX.Element {
               {stepIndex === 0 && (
                 <UploadStep
                   fileInfo={fileInfo}
+                  sampleRows={rawRows.slice(0, 3)}
                   onFile={async (file) => {
-                    setFileInfo(
-                      file ? { name: file.name, size: file.size } : null
-                    );
                     await parseFile(file);
-                    next();
+                    // advance automatically on new file
+                    if (file) setTimeout(() => next(), 250);
                   }}
+                  onContinue={() => next()}
                 />
               )}
 
               {stepIndex === 1 && (
                 <MappingStep
-                  sampleRow={parsedRows[0]}
+                  sampleRow={rawRows[0]}
                   mapping={mapping}
                   setMapping={setMapping}
+                  suggestedMapping={suggestedMapping}
+                  autoMap={(columns) => {
+                    const auto = autoMapColumns(columns);
+                    // apply if confident, but let user edit
+                    setMapping((prev) => ({ ...Object.keys(prev).reduce((acc, k) => ({ ...acc, [k]: auto[k] ?? prev[k] }), {}) }));
+                  }}
                   onNext={() => next()}
                   onBack={() => prev()}
                 />
@@ -68,6 +82,8 @@ export default function WizardForm(): JSX.Element {
                   rows={parsedRows}
                   mapping={mapping}
                   errors={errors}
+                  errorsByCell={errorsByCell}
+                  updateCell={updateCell}
                   onBack={() => prev()}
                   onNext={() => next()}
                 />
@@ -80,9 +96,14 @@ export default function WizardForm(): JSX.Element {
                   errors={errors}
                   onBack={() => prev()}
                   onConfirm={async () => {
-                    await uploadBulk();
-                    reset();
-                    goTo(0);
+                    try {
+                      await uploadBulk();
+                      alert("Carga finalizada con éxito.");
+                      reset();
+                      goTo(0);
+                    } catch (err: any) {
+                      alert(err?.message || "Error al subir");
+                    }
                   }}
                 />
               )}

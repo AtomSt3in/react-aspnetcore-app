@@ -80,6 +80,7 @@ export const alumnoService = {
     return response;
   },
 
+  //Generar un reporte en formato PDF
   async generarReporte(): Promise<Blob> {
     const response = await fetch(`${appsettings.apiUrl}Alumnos/Reporte`, {
       method: "GET",

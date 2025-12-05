@@ -530,7 +530,7 @@ body {
   text-decoration: none;
   transition: all 0.3s ease;
   border-left: 3px solid transparent;
-  width: 100%;
+  width: 90%;
   text-align: left;
   cursor: pointer;
   display: flex;
@@ -545,7 +545,7 @@ body {
   background: rgba(239, 68, 68, 0.1);
   color: white;
   border-left-color: #ef4444;
-  transform: translateX(4px);
+  transform: translateX(2px);
 }
 
 .logout-btn i {
@@ -644,12 +644,12 @@ body {
   height: 64px;
 }
 
-/* Contenedor interno */
+
 .header-inner {
   display: flex;
   align-items: center;
   width: 100%;
-  justify-content: center; /* 🔥 Esto centra el título */
+  justify-content: center; 
   position: relative;
 }
 
@@ -660,14 +660,12 @@ body {
   top: -11px;
 }
 
-/* El título SIEMPRE se mantiene centrado */
 .header-title {
   font-size: 1.25rem;
   font-weight: 600;
   color: white;
 }
 
-/* En móviles evitamos solapamientos */
 @media (max-width: 768px) {
   .header-title {
     text-align: center;
@@ -675,4 +673,34 @@ body {
     max-width: 200px;
     margin: 0 auto;
   }
+}
+
+/* Editable cells */
+.cell-editable {
+  background: transparent;
+  padding: 8px;
+  min-height: 28px;
+}
+
+.cell-editable:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.25);
+  background: rgba(59, 130, 246, 0.03);
+}
+
+/* Error cell */
+.cell-error {
+  background: rgba(239, 68, 68, 0.12);
+  border-left: 3px solid rgba(239, 68, 68, 0.3);
+  padding: 8px;
+}
+
+/* Small adjustments for preview table */
+.custom-table th, .custom-table td {
+  vertical-align: middle;
+  font-size: 0.9rem;
+}
+
+/* Ensure the preview table is scrollable nicely */
+.custom-table {
+  min-width: 700px;
 }

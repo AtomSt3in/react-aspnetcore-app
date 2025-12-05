@@ -13,7 +13,7 @@ public class AlumnoReporteDocument
     public AlumnoReporteDocument(List<ReporteAlumno> alumnos, string rutaLogo = "")
     {
         _alumnos = alumnos;
-        _rutaLogo = rutaLogo; // opcional
+        _rutaLogo = rutaLogo;
     }
 
     public Document Create()
@@ -29,7 +29,6 @@ public class AlumnoReporteDocument
                 // =============================
                 page.Header().ShowOnce().Row(row =>
                 {
-                    // ---- LOGO ----
                     if (!string.IsNullOrWhiteSpace(_rutaLogo) && File.Exists(_rutaLogo))
                     {
                         var imgBytes = File.ReadAllBytes(_rutaLogo);
@@ -40,7 +39,6 @@ public class AlumnoReporteDocument
                         row.ConstantItem(120).Height(50).Placeholder();
                     }
 
-                    // ---- TITULO DEL REPORTE ----
                     row.RelativeItem().Column(col =>
                     {
                         col.Item().AlignCenter().Text("Sistema Escolar - Reporte General")
@@ -53,7 +51,6 @@ public class AlumnoReporteDocument
                             .FontSize(9);
                     });
 
-                    // ---- CAJA DECORATIVA ----
                     row.RelativeItem().Column(col =>
                     {
                         col.Item().Border(1).BorderColor("#257272").Padding(5)
@@ -89,7 +86,7 @@ public class AlumnoReporteDocument
                     {
                         table.ColumnsDefinition(c =>
                         {
-                            c.RelativeColumn(1); // #
+                            c.RelativeColumn(1);
                             c.RelativeColumn(2);
                             c.RelativeColumn(2);
                             c.RelativeColumn(2);
@@ -98,7 +95,6 @@ public class AlumnoReporteDocument
                             c.RelativeColumn(1);
                         });
 
-                        // Encabezado estilo factura
                         table.Header(header =>
                         {
                             void HeaderCell(string t) =>
