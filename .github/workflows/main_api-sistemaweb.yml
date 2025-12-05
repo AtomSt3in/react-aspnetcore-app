@@ -7,19 +7,22 @@ on:
   workflow_dispatch:
 
 jobs:
+
   build:
     runs-on: windows-latest
     permissions:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      # ───────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # ───── Backend (.NET) ──────────────────────────────
+      # ───── Backend (.NET) ─────────────────────────
       - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: "8.x"
 
       - name: Restore backend
         run: dotnet restore ReactAppREST.Server/ReactAppREST.Server.csproj
@@ -30,39 +33,46 @@ jobs:
       - name: Publish backend
         run: dotnet publish ReactAppREST.Server/ReactAppREST.Server.csproj -c Release -o publish
 
-      # ───── Frontend (Node + Vite) ──────────────────────
+
+      # ───── Frontend (Node + Vite) ─────────────────
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Install Frontend dependencies
+      - name: Install Frontend Dependencies
         run: npm install
         working-directory: reactapprest.client
 
-      - name: Build Frontend
+      - name: Build Frontend (Vite)
         run: npm run build
         working-directory: reactapprest.client
 
+
+      # ───── Copiar el frontend al Backend ───────────
       - name: Copy Frontend to Backend's wwwroot
-      shell: pwsh
-      run: |
-        # Asegurar que la carpeta existe
-        if (!(Test-Path "publish/wwwroot")) {
-          mkdir publish/wwwroot
-        }
-        # Borrar contenido previo sin romper el flujo
-        Get-ChildItem publish/wwwroot -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
-        # Copiar el build del frontend
-        cp -R reactapprest.client/dist/* publish/wwwroot/
-        
-      # ───── Upload the artifact for deployment ───────────
-      - name: Upload production artifact
+        run: |
+          # Crear wwwroot si no existe
+          if (!(Test-Path "publish/wwwroot")) { mkdir publish/wwwroot }
+          
+          # Limpiar contenido previo
+          Remove-Item -Recurse -Force publish/wwwroot/* -ErrorAction SilentlyContinue
+          
+          # Copiar los archivos generados por Vite
+          Copy-Item -Path reactapprest.client/dist/* -Destination publish/wwwroot/ -Recurse -Force
+
+
+      # ───── Subir artefacto ─────────────────────────
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: fullstack-app
           path: publish
 
+
+  # ─────────────────────────────────────────────────────────────
+  # DEPLOY TO AZURE
+  # ─────────────────────────────────────────────────────────────
   deploy:
     runs-on: windows-latest
     needs: build
@@ -71,7 +81,7 @@ jobs:
       contents: read
 
     steps:
-      - name: Download artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: fullstack-app
@@ -86,7 +96,6 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'reactaspnetcore'
-          slot-name: 'Production'
+          app-name: "reactaspnetcore"
+          slot-name: "Production"
           package: .
-
