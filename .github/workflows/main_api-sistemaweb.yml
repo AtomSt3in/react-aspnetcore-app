@@ -1,0 +1,84 @@
+name: Build and deploy FullStack App (.NET + Vite) to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ───── Backend (.NET) ──────────────────────────────
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Restore backend
+        run: dotnet restore ReactAppREST.Server/ReactAppREST.Server.csproj
+
+      - name: Build backend
+        run: dotnet build ReactAppREST.Server/ReactAppREST.Server.csproj --configuration Release
+
+      - name: Publish backend
+        run: dotnet publish ReactAppREST.Server/ReactAppREST.Server.csproj -c Release -o publish
+
+      # ───── Frontend (Node + Vite) ──────────────────────
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Frontend dependencies
+        run: npm install
+        working-directory: reactapprest.client
+
+      - name: Build Frontend
+        run: npm run build
+        working-directory: reactapprest.client
+
+      - name: Copy Frontend to Backend's wwwroot
+        run: |
+          mkdir publish/wwwroot -Force
+          cp -R reactapprest.client/dist/* publish/wwwroot/
+
+      # ───── Upload the artifact for deployment ───────────
+      - name: Upload production artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fullstack-app
+          path: publish
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fullstack-app
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'reactaspnetcore'
+          slot-name: 'Production'
+          package: .
