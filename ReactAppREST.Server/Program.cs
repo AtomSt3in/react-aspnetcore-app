@@ -34,7 +34,7 @@ builder.Services.AddCors(options =>
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
                 "https://react-aspnetcore-app.vercel.app",   //front en Vercel
-                "https://web-sistemaweb-bsc8gtbvhectedgx.canadacentral-01.azurewebsites.net"    //front en Azure
+                "https://api-sistemaweb-gzbcebgkakdnd5fz.canadacentral-01.azurewebsites.net"    //front en Azure
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
