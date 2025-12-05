@@ -1,5 +1,5 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
+# Docs for Azure Web Apps Deploy:
+# https://github.com/Azure/webapps-deploy
 
 name: Build and deploy FullStack (.NET + Vite) to Azure Web App - api-sistemaweb
 
@@ -18,11 +18,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ──────────────── BACKEND (.NET) ─────────────────────────
+      # ───────────────────────── BACKEND ─────────────────────────────
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: "8.x"
 
       - name: Restore backend
         run: dotnet restore ReactAppREST.Server/ReactAppREST.Server.csproj
@@ -33,8 +33,8 @@ jobs:
       - name: Publish backend
         run: dotnet publish ReactAppREST.Server/ReactAppREST.Server.csproj -c Release -o publish
 
-      # ─────────────── FRONTEND (VITE) ─────────────────────────
-      - name: Set up Node
+      # ───────────────────────── FRONTEND (VITE) ─────────────────────
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -53,7 +53,7 @@ jobs:
           rm -rf publish/wwwroot/*
           cp -R reactapprest.client/dist/* publish/wwwroot/
 
-      # ─────────────── Artifact para deploy ─────────────────────
+      # ───────────────────────── ARTIFACT ─────────────────────────────
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
@@ -73,7 +73,7 @@ jobs:
         with:
           name: fullstack-app
 
-      # ─────────────── LOGIN AZURE (MANTENGO TUS SECRETS) ───────
+      # ───────────── LOGIN AZURE (TUS SECRETS) ───────────────────────
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -81,10 +81,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1E5C23F0923A4C989F971CC743F8315F }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A98A15D1A0624F7F97C95EB3FC15C7E4 }}
 
-      # ─────────────── DEPLOY FINAL ─────────────────────────────
+      # ───────────── DEPLOY FINAL A AZURE WEB APP ─────────────────────
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'api-sistemaweb'
-          slot-name: 'Production'
+          app-name: "api-sistemaweb"
+          slot-name: "Production"
           package: .
