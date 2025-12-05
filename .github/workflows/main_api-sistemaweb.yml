@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP.Net Core app to Azure Web App - api-sistemaweb
+name: Build and deploy FullStack App (.NET + Vite) to Azure Web App
 
 on:
   push:
@@ -11,55 +8,77 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      # ───── Backend (.NET) ──────────────────────────────
+      - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      - name: Restore backend
+        run: dotnet restore ReactAppREST.Server/ReactAppREST.Server.csproj
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      - name: Build backend
+        run: dotnet build ReactAppREST.Server/ReactAppREST.Server.csproj --configuration Release
 
-      - name: Upload artifact for deployment job
+      - name: Publish backend
+        run: dotnet publish ReactAppREST.Server/ReactAppREST.Server.csproj -c Release -o publish
+
+      # ───── Frontend (Node + Vite) ──────────────────────
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Frontend dependencies
+        run: npm install
+        working-directory: reactapprest.client
+
+      - name: Build Frontend
+        run: npm run build
+        working-directory: reactapprest.client
+
+      - name: Copy Frontend to Backend's wwwroot
+        run: |
+          mkdir publish/wwwroot -Force
+          cp -R reactapprest.client/dist/* publish/wwwroot/
+
+      # ───── Upload the artifact for deployment ───────────
+      - name: Upload production artifact
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          name: fullstack-app
+          path: publish
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
-      
+          name: fullstack-app
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FE2B2C098938449CB73FC9E0CB85378C }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F7DE5B477C884BCD9C14C067D5C6B88C }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CF3657C67ED94C15B8B363EC2D4F0D30 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'api-sistemaweb'
+          app-name: 'reactaspnetcore'
           slot-name: 'Production'
           package: .
-          
