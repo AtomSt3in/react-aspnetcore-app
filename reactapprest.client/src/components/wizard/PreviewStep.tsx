@@ -30,8 +30,8 @@ export default function PreviewStep({
       Array.from(
         new Set(
           Object.entries(mapping)
-            .filter(([col, field]) => field)
-            .map(([col, field]) => field as string)
+            .filter(([col, field]) => Boolean(field) || col !== undefined)
+            .map(([col, field]) => field as string || col)
         )
       ),
     [mapping]
@@ -55,13 +55,21 @@ export default function PreviewStep({
 
   return (
     <div>
-      <p className="text-muted">Se muestran los primeros {preview.length} registros mapeados. Revisa y corrige errores antes de enviar.</p>
+      <p className="text-muted">
+        Se muestran los primeros {preview.length} registros mapeados. Revisa y
+        corrige errores antes de enviar.
+      </p>
 
       <div className="mb-3">
         {errors.length > 0 ? (
-          <div className="text-danger">Se encontraron {errors.length} filas con errores. Puedes corregirlas directamente en la tabla.</div>
+          <div className="text-danger">
+            Se encontraron {errors.length} filas con errores. Puedes corregirlas
+            directamente en la tabla.
+          </div>
         ) : (
-          <div className="text-success">No se detectaron errores críticos. Puedes continuar.</div>
+          <div className="text-success">
+            No se detectaron errores críticos. Puedes continuar.
+          </div>
         )}
       </div>
 
@@ -88,7 +96,11 @@ export default function PreviewStep({
                       suppressContentEditableWarning
                       onBlur={(e) => handleBlur(idx, f, e)}
                       className={cellErr ? "cell-error" : "cell-editable"}
-                      style={{ minWidth: 120, cursor: "text", whiteSpace: "pre-wrap" }}
+                      style={{
+                        minWidth: 120,
+                        cursor: "text",
+                        whiteSpace: "pre-wrap",
+                      }}
                       title={cellErr ?? ""}
                     >
                       {String(r[f] ?? "")}
@@ -102,8 +114,12 @@ export default function PreviewStep({
       </div>
 
       <div className="d-flex justify-content-between mt-3">
-        <Button color="secondary" onClick={onBack} outline>← Atrás</Button>
-        <Button color="primary" onClick={onNext}>Confirmar →</Button>
+        <Button color="secondary" onClick={onBack} outline>
+          ← Atrás
+        </Button>
+        <Button color="primary" onClick={onNext}>
+          Confirmar →
+        </Button>
       </div>
     </div>
   );
