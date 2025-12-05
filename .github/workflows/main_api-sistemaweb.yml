@@ -1,4 +1,4 @@
-name: Build and deploy FullStack App (.NET + Vite) to Azure Web App
+name: Build and deploy FullStack (.NET + Vite) to Azure Web App - api-sistemaweb
 
 on:
   push:
@@ -8,30 +8,27 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read
 
     steps:
       - uses: actions/checkout@v4
 
-      # ───── Backend (.NET) ──────────────────────────────
-      - name: Set up .NET
+      # ───────────────────── BACKEND (.NET) ─────────────────────
+      - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: "8.x"
 
       - name: Restore backend
         run: dotnet restore ReactAppREST.Server/ReactAppREST.Server.csproj
 
-      - name: Build backend
-        run: dotnet build ReactAppREST.Server/ReactAppREST.Server.csproj --configuration Release
-
       - name: Publish backend
         run: dotnet publish ReactAppREST.Server/ReactAppREST.Server.csproj -c Release -o publish
 
-      # ───── Frontend (Node + Vite) ──────────────────────
-      - name: Setup Node
+      # ───────────────────── FRONTEND (VITE) ─────────────────────
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -46,18 +43,19 @@ jobs:
 
       - name: Copy Frontend to Backend's wwwroot
         run: |
-          mkdir publish/wwwroot -Force
+          mkdir -p publish/wwwroot
+          rm -rf publish/wwwroot/*
           cp -R reactapprest.client/dist/* publish/wwwroot/
 
-      # ───── Upload the artifact for deployment ───────────
-      - name: Upload production artifact
+      # ───────────────────── ARTIFACT ─────────────────────
+      - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
           name: fullstack-app
           path: publish
 
   deploy:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     needs: build
     permissions:
       id-token: write
@@ -69,16 +67,17 @@ jobs:
         with:
           name: fullstack-app
 
+      # ───────────────────── LOGIN AZURE ─────────────────────
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_35DCA228D3894122AFD4D8D97E59ABB0 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1E5C23F0923A4C989F971CC743F8315F }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A98A15D1A0624F7F97C95EB3FC15C7E4 }}
 
+      # ───────────────────── DEPLOY AZURE ─────────────────────
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'reactaspnetcore'
-          slot-name: 'Production'
+          app-name: "api-sistemaweb"
           package: .
